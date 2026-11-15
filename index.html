@@ -171,6 +171,62 @@ function createScene(){
     rock.material=armor;
   }
 
+  // 第一隻怪物：哥布林
+  const goblin = new BABYLON.TransformNode("goblin", scene);
+  goblin.position.set(3, 0, 0);
+
+  const goblinSkin = material("goblinSkin", "#478b32");
+  const goblinEyes = material("goblinEyes", "#ff3535");
+  const goblinClothes = material("goblinClothes", "#68472c");
+
+  function goblinPart(name, width, height, depth, x, y, z, mat) {
+    const part = BABYLON.MeshBuilder.CreateBox(
+      name,
+      { width, height, depth },
+      scene
+    );
+    part.position.set(x, y, z);
+    part.material = mat;
+    part.parent = goblin;
+    return part;
+  }
+
+  // 身體
+  goblinPart("body", .8, 1, .5, 0, 1.1, 0, goblinClothes);
+
+  // 頭部
+  const goblinHead = BABYLON.MeshBuilder.CreateSphere(
+    "goblinHead",
+    { diameter: .85 },
+    scene
+  );
+  goblinHead.position.set(0, 1.95, 0);
+  goblinHead.material = goblinSkin;
+  goblinHead.parent = goblin;
+
+  // 眼睛
+  goblinPart("eyeL", .13, .13, .08, -.2, 2, -.4, goblinEyes);
+  goblinPart("eyeR", .13, .13, .08, .2, 2, -.4, goblinEyes);
+
+  // 尖耳朵
+  goblinPart("earL", .5, .16, .2, -.58, 2.05, 0, goblinSkin);
+  goblinPart("earR", .5, .16, .2, .58, 2.05, 0, goblinSkin);
+
+  // 雙手
+  goblinPart("armL", .25, .85, .3, -.55, 1.15, 0, goblinSkin);
+  goblinPart("armR", .25, .85, .3, .55, 1.15, 0, goblinSkin);
+
+  // 雙腳
+  goblinPart("legL", .28, .7, .35, -.22, .35, 0, goblinSkin);
+  goblinPart("legR", .28, .7, .35, .22, .35, 0, goblinSkin);
+
+  goblin.metadata = {
+    level: 1,
+    hp: 50,
+    maxHp: 50,
+    attack: 5
+  };
+
   // 角色待機動畫
   scene.onBeforeRenderObservable.add(()=>{
     hero.position.y=
