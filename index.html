@@ -1,244 +1,210 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1">
-<title>MU Idle - 3D RPG</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1954c1">
+<title>MU Idle｜放置奇蹟 - 復古經典介面</title>
 <script src="https://cdn.babylonjs.com/babylon.js"></script>
 <style>
-  html,body {
-    margin:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:#090e19;
-    font-family:Arial,sans-serif;
-  }
-  #game {
-    width:100%;
-    height:100%;
-    display:block;
-    touch-action:none;
-  }
-  #hud {
-    position:absolute;
-    top:16px;
-    left:16px;
-    color:white;
-    background:rgba(8,12,24,.8);
-    padding:16px;
-    border:1px solid #987640;
-    border-radius:8px;
-    pointer-events:none;
-  }
-  h2 {
-    color:#ffd477;
-    margin:0 0 10px;
-  }
-  p { margin:6px 0; }
+:root{--blue:#1b4caa;--deepblue:#113b91;--frame:#6494ba;--pale:#d9ebff;--edge:#789ac2;--ink:#122b5c;--paper:#f5f8ff;--dark:#292a2e;--grass:#79a755;--gold:#ffe478;--cyan:#77e7dd;--violet:#e8a0f8}
+*{box-sizing:border-box}html,body{height:100%}body{margin:0;color:#111;font:12px/1.45 Tahoma,'Microsoft JhengHei','PingFang TC',sans-serif;background:radial-gradient(circle at 30% 25%,#a6bc70 0 1px,transparent 2px) 0 0/35px 38px,radial-gradient(circle at 80% 50%,#d1d38b 0 1px,transparent 2px) 0 0/53px 47px,linear-gradient(160deg,#7ba94d,#619a49)}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.55}.hidden{display:none!important}.app{height:100vh;min-height:670px;display:flex;flex-direction:column}.titlebar{height:32px;flex:none;background:linear-gradient(#2e79ee,#1255ce 45%,#063aab);border-bottom:1px solid #00297b;color:white;display:flex;align-items:center;justify-content:space-between;padding:0 13px;font-size:13px;font-weight:bold;text-shadow:0 1px #08377d}.titlebar .small{font-size:11px;font-weight:normal;color:#d6e8ff}.window-controls{display:flex;gap:7px;align-items:center}.window-controls i{display:block;border-radius:2px;border:1px solid #9bc5ff;width:15px;height:13px;background:linear-gradient(#7db6ff,#1f63c9);text-align:center;line-height:10px;font-style:normal;font-size:10px}
+.toolbar-shell{margin:8px 10px 7px;flex:none;border:1px solid #5686bd;border-radius:6px;background:linear-gradient(#f5fbff,#d3e3f7 65%,#f0f6fc);box-shadow:0 1px 4px #204c7866;overflow:hidden}.toolbar-top{height:20px;padding:2px 10px;background:linear-gradient(#93c6f5,#d8eeff);color:#17407f;font-weight:bold;border-bottom:1px solid #91b5d5}.toolbar{display:flex;align-items:center;gap:5px;padding:6px 7px;flex-wrap:wrap}.tab-button,.mini-btn,.pill{background:linear-gradient(white,#e7eaf1);border:1px solid #abb6c5;border-radius:5px;box-shadow:inset 0 1px white,0 1px 1px #3333;color:#17264b;font-weight:bold;padding:4px 11px;white-space:nowrap}.tab-button:hover,.mini-btn:hover,.pill:hover{background:linear-gradient(#fff,#cfe8ff);border-color:#6b9ccb}.tab-button.active,.pill.active{background:linear-gradient(#c7e3ff,#9ec4f1);border-color:#5d90cc;color:#07366f}.toolbar .separate{width:1px;height:19px;background:#b4c7da;margin:0 3px}.spacer{flex:1}.toolbar-badge{color:#36605f;font-size:11px;white-space:nowrap}
+.workspace{min-height:0;flex:1;display:grid;grid-template-columns:minmax(0,1fr) 288px;gap:9px;margin:0 10px 7px}.left-column{min-width:0;min-height:0;display:flex;flex-direction:column;gap:8px}.right-column{min-width:0;overflow-y:auto;padding-right:1px;display:flex;flex-direction:column;gap:8px}.window{display:flex;flex-direction:column;border:1px solid #6389b6;border-radius:6px;background:#edf5ff;overflow:hidden;box-shadow:0 1px 4px #24538d55}.panel-title{min-height:22px;flex:none;padding:2px 8px;background:linear-gradient(#c8e4fa,#87b7e7 44%,#b9daef);border-bottom:1px solid #7598bf;color:#12417a;font-weight:bold;display:flex;align-items:center;justify-content:space-between;gap:6px}.panel-title .title-actions{display:flex;gap:4px}.panel-title .title-actions span{display:inline-block;border:1px solid #7799c6;border-radius:50%;background:#ecf5ff;width:11px;height:11px;font-size:9px;line-height:9px;text-align:center;color:#2656a9}.battle-window{flex:1;min-height:260px;position:relative}.filterbar,.chat-filters{flex:none;display:flex;align-items:center;gap:5px;padding:5px 7px;background:#f4f7fa;border-bottom:1px solid #bac5d5;flex-wrap:wrap}.pill{font-size:11px;padding:2px 9px;border-radius:12px}.filterbar label{white-space:nowrap;color:#2c3950}.filterbar input{accent-color:#1769db;vertical-align:-2px}.log-scroller{background:#292a2e;color:#c6c6c6;overflow:auto;flex:1;min-height:0;padding:7px 11px;font:12px/1.52 Consolas,'Microsoft JhengHei',monospace;white-space:pre-wrap;overflow-wrap:anywhere}.log-entry{padding:1px 0}.log-time{color:#9a9ba2}.log-entry.battle .log-body{color:#d3d3d5}.log-entry.exp .log-body{color:#ffe165}.log-entry.loot .log-body{color:#d9a3ff}.log-entry.skill .log-body{color:#73efdd}.log-entry.system .log-body{color:#9bd0fd}.log-entry.warning .log-body{color:#ff9d9d}.log-entry.boss .log-body{color:#ff9e52}.command-row,.chat-send{display:flex;align-items:center;gap:5px;padding:4px;background:#eff4fb;border-top:1px solid #bbc8d9;flex:none}.command-row input,.chat-send input{min-width:0;flex:1;border:1px solid #a5b4c9;background:#fff;height:24px;padding:2px 7px;border-radius:2px;outline-color:#5f9bde}.mini-btn{padding:3px 9px;font-size:11px}.chat-window{height:205px;flex:none}.chat-messages{flex:1;min-height:0;overflow:auto;padding:7px 11px;background:#2a2b30;color:#c7d4dc;font:12px/1.6 Consolas,'Microsoft JhengHei',monospace}.chat-row{padding:1px 0}.chat-row .name{color:#8be5bb}.chat-row.system .name{color:#d5bdff}.chat-row .time{color:#898d9b}.chat-send select{height:24px;border:1px solid #a5b4c9;background:#fff}
+.character{background:#fff}.character-body{padding:7px}.character-main{display:grid;grid-template-columns:111px minmax(0,1fr);gap:7px}.portrait{height:148px;border:2px ridge #abb7bc;background:radial-gradient(circle at 45% 10%,#a8adb9,#536778 70%,#243747);overflow:hidden;position:relative}.portrait canvas{display:block;width:100%;height:100%;touch-action:none}.portrait .fall-back{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:58px;color:#dde3ff;z-index:0}.portrait canvas{position:relative;z-index:1}.char-name{font-size:13px;font-weight:bold;color:#2b2d7e;overflow-wrap:anywhere}.char-job{font-size:11px;color:#666;margin:2px 0 6px}.line-row{display:flex;justify-content:space-between;gap:4px;margin:5px 0 2px;font-size:11px}.progress{height:9px;border:1px solid #95a6bd;background:linear-gradient(#e3eaf5,#f8fbff);box-shadow:inset 0 1px 1px #8192b1;position:relative;overflow:hidden}.progress>div{height:100%;background:linear-gradient(#ffb5bc,#db4d69 45%,#a82245);width:0%;transition:width .2s}.progress.mp>div{background:linear-gradient(#b3d8ff,#6eabf0 45%,#2c72cb)}.progress.exp>div{background:linear-gradient(#fff2a8,#e5ab4d 48%,#cb7d21)}.progress.job>div{background:linear-gradient(#c0e9ff,#79adea 45%,#4986bb)}.metric{display:flex;align-items:center;gap:6px;margin-top:6px}.metric .key{min-width:22px;font-weight:bold;font-size:11px;color:#087631}.metric .progress{flex:1}.metric .value{width:90px;text-align:right;font-size:10px;color:#284f8a;white-space:nowrap}.char-footer{font-size:11px;color:#444;margin-top:7px}.char-footer .zen{font-weight:bold;color:#614a2b}.tip-red{color:#e6434c;font-size:11px;margin-top:4px}.action-wide{border:1px solid #8facd5;padding:5px;margin:5px 6px;border-radius:5px;background:linear-gradient(#9baee4,#c7d0f0 40%,#8a9dd2);color:#132865;font-weight:bold;text-align:center}.action-wide:hover{filter:brightness(1.08)}.action-wide.running{background:linear-gradient(#abbbec,#dbe4ff 40%,#8ba8e2)}.right-body{background:#fff;padding:7px;font-size:11px}.info-row{display:flex;justify-content:space-between;gap:8px;padding:3px 0}.info-row strong{text-align:right}.info-row .muted{color:#526079}.location{color:#4a353e;font-weight:bold}.map-buttons{display:flex;justify-content:flex-end;gap:6px;margin:3px 0 6px}.battle-status{border-top:1px solid #e1e6f0;padding-top:5px;margin-top:4px}.target-hp{background:#fff1f1;border:1px solid #edd4d4;padding:6px;margin-top:5px;border-radius:3px}.target-hp strong{color:#a82e37}.right-stat{font-size:11px;line-height:1.6}.right-stat .rewards{color:#8c1a98;display:grid;gap:2px;margin-top:5px}.right-stat .rewards>div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.quick-buttons{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:5px}.quick-buttons button{border:1px solid #a0b2c9;border-radius:4px;padding:5px;color:#1c467f;background:linear-gradient(#fff,#dce9f7)}.quick-buttons button:hover{background:#c8e3ff}.notice{font-size:10px;color:#56657d;line-height:1.6}.bottom-status{height:27px;flex:none;margin:0 10px 6px;background:linear-gradient(#f8fbff,#e1ebf8);border:1px solid #7098c6;border-radius:5px;display:flex;align-items:center;gap:12px;padding:3px 8px;color:#345074}.bottom-status .status-location{flex:1;min-width:0;background:white;border:1px solid #b3c5dc;padding:1px 7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bottom-status .online{color:#1c985d;font-weight:bold}.bottom-status span{white-space:nowrap}
+.drawer{position:absolute;inset:39px 9px 8px;z-index:5;background:#f6f9ff;border:2px solid #658ec6;border-radius:5px;box-shadow:0 6px 23px #151d2a99;display:flex;flex-direction:column;overflow:hidden}.drawer-head{background:linear-gradient(#bddcf9,#7aaadf);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:#163d73;font-size:15px;font-weight:bold;flex:none}.drawer-inner{padding:14px;overflow:auto;flex:1;font-size:13px}.drawer-inner h3{font-size:14px;color:#1a4d96;margin:10px 0 7px;border-bottom:1px solid #b0cbe5;padding-bottom:5px}.drawer-inner p{margin:5px 0 10px;color:#47546a}.modal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:9px}.ui-card{border:1px solid #a6bad5;background:linear-gradient(#fff,#eff5ff);border-radius:6px;padding:10px;min-height:88px;box-shadow:0 1px 2px #7b9cbb22}.ui-card b{color:#193e80;font-size:13px}.ui-card .desc{font-size:11px;color:#5b6c81;margin:5px 0 9px;line-height:1.5}.ui-card button,.drawer-actions button{border:1px solid #7fa0ca;border-radius:4px;background:linear-gradient(#fefefe,#d0e3fb);padding:5px 8px;color:#194682;font-weight:bold;margin-right:5px;margin-top:3px}.ui-card button:hover,.drawer-actions button:hover{background:#b8d7ff}.drawer-actions{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.keyval{display:flex;justify-content:space-between;border-bottom:1px solid #d9e6f5;padding:6px 2px;gap:12px}.keyval span:last-child{font-weight:bold;color:#17428d}.toast{position:fixed;bottom:42px;left:50%;transform:translateX(-50%);z-index:100;border:1px solid #436bac;border-radius:6px;background:#eff6ff;padding:10px 16px;box-shadow:0 5px 18px #0004;color:#18478d;font-weight:bold;display:none;max-width:90vw;text-align:center}
+@media(max-width:1000px){.workspace{grid-template-columns:minmax(0,1fr) 265px}.tab-button{padding:4px 8px}}@media(max-width:740px){.app{height:auto;min-height:100vh}.workspace{display:flex;flex-direction:column}.left-column{min-height:640px}.battle-window{min-height:450px}.right-column{overflow:visible;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.character{grid-column:1/-1}.chat-window{height:185px}.drawer{inset:35px 4px 7px}.bottom-status{height:auto;min-height:27px;flex-wrap:wrap}.toolbar-shell{margin-top:6px}}@media(max-width:460px){.right-column{display:flex}.toolbar{gap:4px}.tab-button{padding:4px 7px}.character-main{grid-template-columns:110px 1fr}.filterbar .spacer{display:none}.bottom-status{gap:6px}.drawer-inner{padding:9px}}
 </style>
 </head>
 <body>
-<div id="hud">
-  <h2>MU IDLE RPG</h2>
-  <p>職業：暗黑戰士</p>
-  <p>等級：1</p>
-  <p>HP：100 / 100</p>
-  <p>金幣：0 Zen</p>
+<div class="app">
+  <header class="titlebar"><span>▣ &nbsp;MU 放置奇蹟 <span class="small">· 經典文字放置 RPG · 原創單機版</span></span><div class="window-controls" aria-hidden="true"><i>−</i><i>□</i><i>×</i></div></header>
+  <div class="toolbar-shell">
+    <div class="toolbar-top" id="topSummary">✦ MU 放置奇蹟 - 暗黑戰士 Lv.1 / 戰鬥中</div>
+    <nav class="toolbar" aria-label="遊戲功能">
+      <button class="tab-button active" data-view="main">主控台</button><button class="tab-button" data-view="character">角色</button><button class="tab-button" data-view="skills">技能</button><button class="tab-button" data-view="equipment">裝備</button><button class="tab-button" data-view="inventory">背包</button><button class="tab-button" data-view="warehouse">倉庫</button><button class="tab-button" data-view="shop">商店</button><button class="tab-button" data-view="upgrade">強化</button><button class="tab-button" data-view="map">地圖</button><button class="tab-button" data-view="settings">掛機設定</button><button class="tab-button" data-view="stats">統計</button><button class="tab-button" data-view="help">說明</button>
+      <span class="spacer"></span><span class="toolbar-badge">● 本機遊戲</span>
+    </nav>
+  </div>
+  <div class="workspace">
+    <div class="left-column">
+      <section class="window battle-window">
+        <div class="panel-title"><span>▤ 戰鬥訊息</span><div class="title-actions" aria-hidden="true"><span>−</span><span>⊕</span><span>×</span></div></div>
+        <div class="filterbar" id="logFilters">
+          <button class="pill active" data-filter="all">全部</button><button class="pill" data-filter="battle">戰鬥</button><button class="pill" data-filter="skill">技能</button><button class="pill" data-filter="exp">經驗值</button><button class="pill" data-filter="loot">掉落</button><button class="pill" data-filter="system">系統</button><button class="pill" data-filter="boss">Boss</button><span class="spacer"></span><label><input type="checkbox" id="autoscroll" checked> 自動捲動</label><button class="mini-btn" id="clearLog">清除</button>
+        </div>
+        <div id="log" class="log-scroller" role="log" aria-live="off"></div>
+        <div class="command-row"><span style="color:#5378a2">›</span><input id="command" autocomplete="off" placeholder="輸入指令：help、status、save、start、stop、skill、bag、clear"><button class="mini-btn" id="commandGo">執行</button></div>
+        <div id="drawer" class="drawer hidden" role="dialog" aria-modal="false" aria-labelledby="drawerTitle"><div class="drawer-head"><span id="drawerTitle">角色資訊</span><button class="mini-btn" id="drawerClose" aria-label="關閉視窗">✕ 關閉</button></div><div class="drawer-inner" id="drawerContent"></div></div>
+      </section>
+      <section class="window chat-window">
+        <div class="panel-title"><span>▤ 聊天</span><div class="title-actions" aria-hidden="true"><span>−</span><span>⊕</span><span>×</span></div></div>
+        <div class="chat-filters"><button class="pill active" data-chat-filter="all">全部</button><button class="pill" data-chat-filter="general">一般</button><button class="pill" data-chat-filter="system">系統</button><span class="spacer"></span><span style="color:#777;font-size:11px">單機留言板</span></div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <form id="chatForm" class="chat-send"><select id="chatChannel" aria-label="聊天頻道"><option value="general">一般</option></select><input id="chatInput" maxlength="160" autocomplete="off" placeholder="輸入留言（僅顯示在你的瀏覽器，不會傳送給其他玩家）"><button class="mini-btn" type="submit">送出</button></form>
+      </section>
+    </div>
+    <aside class="right-column">
+      <section class="window character">
+        <div class="panel-title">角色</div>
+        <div class="character-body">
+          <div class="character-main"><div class="portrait"><div class="fall-back">⚔</div><canvas id="portraitCanvas" aria-label="3D 戰士模型"></canvas></div><div>
+            <div id="charName" class="char-name">暗黑戰士</div><div class="char-job">職業：暗黑戰士</div>
+            <div class="line-row"><span>Base Lv.</span><strong id="baseLevel">1</strong></div><div class="progress exp"><div id="expFill"></div></div><div class="line-row" style="justify-content:flex-end;color:#6c7084"><span id="expPct">0.00%</span></div>
+            <div class="line-row"><span>Job Lv.</span><strong id="jobLevel">1</strong></div><div class="progress job"><div id="jobFill"></div></div><div class="line-row" style="justify-content:flex-end;color:#6c7084"><span id="jobPct">0.00%</span></div>
+          </div></div>
+          <div class="metric"><span class="key">HP</span><div class="progress"><div id="hpFill"></div></div><span class="value" id="hpText">120 / 120</span></div>
+          <div class="metric"><span class="key" style="color:#215fc0">MP</span><div class="progress mp"><div id="mpFill"></div></div><span class="value" id="mpText">60 / 60</span></div>
+          <div class="char-footer">負重 <span id="burden">0 / 60</span>　 Zen：<span class="zen" id="goldText">0</span></div>
+          <div class="tip-red" id="pointsText">自由能力點數：0</div>
+        </div>
+      </section>
+      <button id="toggleCombat" class="action-wide running">■ 停止掛機</button>
+      <section class="window"><div class="panel-title">地圖與戰況</div><div class="right-body">
+        <div class="info-row"><span>地圖</span><strong id="zoneName" class="location">勇者草原 01</strong></div>
+        <div class="info-row"><span>練等點</span><span class="muted" id="stageName">第 1 關</span></div>
+        <div class="map-buttons"><button class="mini-btn" id="backZone">回起始點</button><button class="mini-btn" id="openMap">前往其他地圖</button></div>
+        <div class="battle-status"><div class="info-row"><span>行動</span><strong id="actionText">自動掛機</strong></div><div class="info-row"><span>目標</span><strong id="enemyName">哥布林</strong></div><div class="info-row"><span>目前掉落</span><strong id="recentItem">（沒有）</strong></div></div>
+        <div class="target-hp"><div style="display:flex;justify-content:space-between"><strong id="targetName">哥布林 Lv.1</strong><span id="targetHpText">45/45</span></div><div class="progress" style="margin-top:4px"><div id="enemyFill"></div></div></div>
+      </div></section>
+      <section class="window"><div class="panel-title">統計（自動尋找）</div><div class="right-body right-stat" id="statSidebar"></div></section>
+      <section class="window"><div class="panel-title">快捷操作</div><div class="right-body"><div class="quick-buttons"><button id="quickSkill">⚡ 旋風斬</button><button data-open="inventory">🎒 背包</button><button data-open="upgrade">⬆ 角色強化</button><button id="quickSave">💾 立即存檔</button></div><p class="notice">※ 網頁為單機版本；戰鬥會自動進行，存檔保存在此瀏覽器。</p></div></section>
+    </aside>
+  </div>
+  <footer class="bottom-status"><span id="footerZone" class="status-location">勇者草原 01</span><span id="footerFight">待機</span><span class="online">● 已連線（本機）</span><span id="footerSaved">自動儲存</span><button class="mini-btn" data-open="character">角色</button></footer>
 </div>
-<canvas id="game"></canvas>
+<div id="toast" class="toast" role="status"></div>
 <script>
-const canvas=document.getElementById("game");
-const engine=new BABYLON.Engine(canvas,true);
-
-function createScene(){
-  const scene=new BABYLON.Scene(engine);
-  scene.clearColor=
-    new BABYLON.Color4(.025,.035,.065,1);
-
-  const camera=new BABYLON.ArcRotateCamera(
-    "camera",-Math.PI/2,1.05,13,
-    new BABYLON.Vector3(0,1,0),scene
-  );
-  camera.attachControl(canvas,true);
-  camera.lowerRadiusLimit=6;
-  camera.upperRadiusLimit=25;
-
-  const light=new BABYLON.HemisphericLight(
-    "light",new BABYLON.Vector3(0,1,0),scene
-  );
-  light.intensity=.85;
-
-  const sun=new BABYLON.DirectionalLight(
-    "sun",new BABYLON.Vector3(-1,-2,-1),scene
-  );
-  sun.intensity=1.4;
-
-  function material(name,color,metallic=0){
-    const m=new BABYLON.PBRMaterial(name,scene);
-    m.albedoColor=BABYLON.Color3.FromHexString(color);
-    m.metallic=metallic;
-    m.roughness=.38;
-    return m;
-  }
-
-  const armor=material("dark steel","#303c56",.75);
-  const silver=material("silver","#8898b3",.85);
-  const gold=material("gold","#c49b4e",.7);
-  const black=material("black","#151b2a",.25);
-  const blue=material("magic","#277bff",.2);
-  blue.emissiveColor=new BABYLON.Color3(.05,.2,.7);
-
-  const ground=BABYLON.MeshBuilder.CreateGround(
-    "ground",{width:30,height:30},scene
-  );
-  ground.material=material("stone","#303b35");
-
-  const hero=new BABYLON.TransformNode("hero",scene);
-
-  function box(name,w,h,d,x,y,z,mat,parent=hero){
-    const mesh=BABYLON.MeshBuilder.CreateBox(
-      name,{width:w,height:h,depth:d},scene
-    );
-    mesh.position.set(x,y,z);
-    mesh.material=mat;
-    mesh.parent=parent;
-    return mesh;
-  }
-
-  function sphere(name,diameter,x,y,z,mat){
-    const mesh=BABYLON.MeshBuilder.CreateSphere(
-      name,{diameter},scene
-    );
-    mesh.position.set(x,y,z);
-    mesh.material=mat;
-    mesh.parent=hero;
-    return mesh;
-  }
-
-  // 身體與胸甲
-  box("torso",1.05,1.3,.55,0,2.15,0,armor);
-  box("chest plate",.85,.6,.65,0,2.45,-.04,silver);
-  box("chest emblem",.2,.4,.7,0,2.48,-.06,gold);
-  box("belt",1.05,.2,.65,0,1.5,0,gold);
-
-  // 頭盔
-  sphere("head",.65,0,3.15,0,black);
-  box("helmet",.8,.65,.75,0,3.32,0,armor);
-  box("visor",.6,.12,.8,0,3.18,-.03,blue);
-  box("helmet crest",.14,.4,.5,0,3.75,0,gold);
-
-  // 肩甲
-  box("left shoulder",.65,.48,.85,-.82,2.75,0,silver);
-  box("right shoulder",.65,.48,.85,.82,2.75,0,silver);
-
-  // 雙臂
-  box("left arm",.36,1.1,.4,-.8,1.95,0,armor);
-  box("right arm",.36,1.1,.4,.8,1.95,0,armor);
-  box("left glove",.42,.35,.46,-.8,1.32,0,gold);
-  box("right glove",.42,.35,.46,.8,1.32,0,gold);
-
-  // 雙腿
-  box("left leg",.42,1.2,.48,-.3,.85,0,armor);
-  box("right leg",.42,1.2,.48,.3,.85,0,armor);
-  box("left boot",.48,.35,.7,-.3,.2,-.1,black);
-  box("right boot",.48,.35,.7,.3,.2,-.1,black);
-
-  // 右手長劍
-  const sword=new BABYLON.TransformNode("sword",scene);
-  sword.parent=hero;
-  sword.position.set(.85,1.25,-.15);
-  box("handle",.12,.65,.12,0,-.15,0,black,sword);
-  box("guard",.65,.13,.2,0,.2,0,gold,sword);
-  box("blade",.2,1.65,.12,0,1.05,0,silver,sword);
-
-  // 地面石塊
-  for(let i=0;i<25;i++){
-    const rock=BABYLON.MeshBuilder.CreateBox(
-      "rock"+i,{
-        width:.4+Math.random()*.8,
-        height:.2+Math.random()*.4,
-        depth:.4+Math.random()*.8
-      },scene
-    );
-    rock.position.set(
-      Math.random()*22-11,
-      .1,
-      Math.random()*22-11
-    );
-    rock.material=armor;
-  }
-
-  // 第一隻怪物：哥布林
-  const goblin = new BABYLON.TransformNode("goblin", scene);
-  goblin.position.set(3, 0, 0);
-
-  const goblinSkin = material("goblinSkin", "#478b32");
-  const goblinEyes = material("goblinEyes", "#ff3535");
-  const goblinClothes = material("goblinClothes", "#68472c");
-
-  function goblinPart(name, width, height, depth, x, y, z, mat) {
-    const part = BABYLON.MeshBuilder.CreateBox(
-      name,
-      { width, height, depth },
-      scene
-    );
-    part.position.set(x, y, z);
-    part.material = mat;
-    part.parent = goblin;
-    return part;
-  }
-
-  // 身體
-  goblinPart("body", .8, 1, .5, 0, 1.1, 0, goblinClothes);
-
-  // 頭部
-  const goblinHead = BABYLON.MeshBuilder.CreateSphere(
-    "goblinHead",
-    { diameter: .85 },
-    scene
-  );
-  goblinHead.position.set(0, 1.95, 0);
-  goblinHead.material = goblinSkin;
-  goblinHead.parent = goblin;
-
-  // 眼睛
-  goblinPart("eyeL", .13, .13, .08, -.2, 2, -.4, goblinEyes);
-  goblinPart("eyeR", .13, .13, .08, .2, 2, -.4, goblinEyes);
-
-  // 尖耳朵
-  goblinPart("earL", .5, .16, .2, -.58, 2.05, 0, goblinSkin);
-  goblinPart("earR", .5, .16, .2, .58, 2.05, 0, goblinSkin);
-
-  // 雙手
-  goblinPart("armL", .25, .85, .3, -.55, 1.15, 0, goblinSkin);
-  goblinPart("armR", .25, .85, .3, .55, 1.15, 0, goblinSkin);
-
-  // 雙腳
-  goblinPart("legL", .28, .7, .35, -.22, .35, 0, goblinSkin);
-  goblinPart("legR", .28, .7, .35, .22, .35, 0, goblinSkin);
-
-  goblin.metadata = {
-    level: 1,
-    hp: 50,
-    maxHp: 50,
-    attack: 5
-  };
-
-  // 角色待機動畫
-  scene.onBeforeRenderObservable.add(()=>{
-    hero.position.y=
-      Math.sin(performance.now()*.002)*.045;
-  });
-
-  return scene;
+'use strict';
+// 原創 UI 與程式。保留舊版 MU Idle localStorage Key，盡量延續使用者原本進度。
+const SAVE_KEY='mu_idle_original_v1';
+const $=id=>document.getElementById(id);
+const fmt=n=>Math.floor(Number(n)||0).toLocaleString('zh-TW');
+const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+const initial=()=>({version:1,level:1,xp:0,jobLevel:1,jobXp:0,gold:0,stage:1,maxStage:1,kills:0,bossKills:0,hp:120,mp:60,auto:true,autoSkill:true,upgrades:{atk:0,hp:0,def:0},skillLevel:1,statPoints:0,attributes:{str:0,agi:0,vit:0,int:0},equipment:{weapon:null,armor:null,ring:null},inventory:[],warehouse:[],nextItemId:1,lastSaved:Date.now(),skillReadyAt:0});
+let state=initial(),enemy=null,attackClock=0,enemyClock=0,respawnClock=0,mpClock=0,sessionStart=Date.now(),sessionXp=0,sessionGold=0,sessionKills=0,logFilter='all',chatFilter='all',activeView='main',recentItem='（沒有）',scene=null,heroRoot=null,monsterRoot=null;
+const logLines=[],chats=[];
+const ZONES=[{level:1,name:'勇者草原',monster:'哥布林',boss:'哥布林首領'},{level:6,name:'遺忘森林',monster:'骷髏兵',boss:'骷髏將軍'},{level:11,name:'荒廢礦坑',monster:'暗影蜘蛛',boss:'礦坑魔蛛'},{level:21,name:'黑暗山谷',monster:'魔族士兵',boss:'魔族統領'},{level:36,name:'深淵裂谷',monster:'深淵惡魔',boss:'深淵魔王'}];
+const types={weapon:'武器',armor:'盔甲',ring:'戒指'};
+const names={weapon:['鐵劍','騎士長劍','符文巨劍','深淵之刃'],armor:['皮甲','鋼鐵戰甲','守護重甲','暗影鎧甲'],ring:['銅戒','勇氣戒指','魔力戒指','王者之戒']};
+const $text=(id,value)=>{if($(id))$(id).textContent=value;};
+const el=(tag,cls,text)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=text;return x;};
+function zoneOf(stage=state.stage){return [...ZONES].reverse().find(z=>stage>=z.level)||ZONES[0];}
+function zoneLabel(stage=state.stage){const z=zoneOf(stage);return `${z.name} ${String(stage-z.level+1).padStart(2,'0')}`;}
+function xpNeeded(){return Math.floor(65*Math.pow(state.level,1.45));}
+function jobNeeded(){return Math.floor(45*Math.pow(state.jobLevel,1.38));}
+function bonus(stat){return Object.values(state.equipment).reduce((sum,i)=>sum+(Number(i?.[stat])||0),0);}
+function maxHp(){return 120+(state.level-1)*18+state.upgrades.hp*35+state.attributes.vit*14+bonus('hp');}
+function maxMp(){return 60+(state.level-1)*4+state.attributes.int*8;}
+function attack(){return 12+(state.level-1)*4+state.upgrades.atk*5+state.attributes.str*3+bonus('atk');}
+function defense(){return 2+Math.floor(state.level/3)+state.upgrades.def*2+state.attributes.vit+bonus('def');}
+function skillDamage(){return Math.floor(attack()*(1.7+state.skillLevel*.35));}
+function upgradeCost(t){return Math.floor(({atk:35,hp:30,def:28})[t]*Math.pow(1.32,state.upgrades[t]));}
+function skillCost(){return Math.floor(120*Math.pow(1.7,state.skillLevel-1));}
+function itemText(item){return `攻擊 +${item.atk||0}　防禦 +${item.def||0}　HP +${item.hp||0}`;}
+function qualityLabel(item){return item.quality||'普通';}
+function timestamp(){return new Date().toLocaleTimeString('zh-TW',{hour12:false});}
+function log(message,kind='system'){
+  const line={time:timestamp(),message,kind};logLines.push(line);if(logLines.length>220)logLines.shift();
+  appendLog(line);if(logLines.length>220)drawLog();
 }
-
-const scene=createScene();
-engine.runRenderLoop(()=>scene.render());
-window.addEventListener("resize",()=>engine.resize());
+function appendLog(entry){if(logFilter!=='all'&&entry.kind!==logFilter)return;const box=$('log'),div=el('div','log-entry '+entry.kind);const t=el('span','log-time',`[${entry.time}] `);const s=el('span','log-body',entry.message);div.append(t,s);box.append(div);while(box.childElementCount>180)box.firstElementChild.remove();if($('autoscroll').checked)box.scrollTop=box.scrollHeight;}
+function drawLog(){const box=$('log');box.replaceChildren();for(const line of logLines)appendLog(line);}
+function chat(message,kind='system',name='系統'){const item={time:timestamp(),message,kind,name};chats.push(item);if(chats.length>50)chats.shift();drawChat();}
+function drawChat(){const box=$('chatMessages');box.replaceChildren();for(const item of chats){if(chatFilter!=='all'&&item.kind!==chatFilter)continue;const row=el('div','chat-row '+item.kind);row.append(el('span','time',`[${item.time}] `),el('span','name',`[${item.name}] `),document.createTextNode(item.message));box.append(row);}box.scrollTop=box.scrollHeight;}
+function toast(message){const t=$('toast');t.textContent=message;t.style.display='block';clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.style.display='none',2400);}
+function generateItem(boss=false,typeOverride=null){const keys=Object.keys(types);const type=typeOverride||keys[Math.floor(Math.random()*keys.length)];const tier=clamp(Math.floor((state.stage-1)/5)+(boss?1:0),0,3);const scale=1+Math.floor(state.stage/2),crit=boss?1.5:1;return{id:state.nextItemId++,type,name:names[type][tier],quality:boss?'稀有':'普通',atk:type==='weapon'?Math.floor((scale*3+2)*crit):0,def:type==='armor'?Math.floor((scale+1)*crit):0,hp:type==='ring'?Math.floor((scale*12+10)*crit):0};}
+function gainXp(amount){sessionXp+=amount;state.xp+=amount;state.jobXp+=Math.floor(amount*.55);while(state.xp>=xpNeeded()){const needed=xpNeeded();state.xp-=needed;state.level++;state.statPoints+=3;state.hp=maxHp();state.mp=maxMp();log(`✨ 升級！Base Lv.${state.level}，獲得 3 點能力點數。`,'exp');}while(state.jobXp>=jobNeeded()){const need=jobNeeded();state.jobXp-=need;state.jobLevel++;log(`✦ 職業等級提升！Job Lv.${state.jobLevel}`,'exp');}}
+function newEnemy(){const boss=state.stage%5===0;const level=state.stage;const z=zoneOf(level);const m=Math.floor((boss?130:45)*Math.pow(1.17,level-1));enemy={name:boss?z.boss:z.monster,boss,level,maxHp:m,hp:m,atk:Math.floor((boss?13:5)*Math.pow(1.12,level-1)),def:Math.floor(level*.55)};enemyClock=0;attackClock=0;respawnClock=0;buildMonster();log(`${boss?'👑 警告！Boss':'發現魔物'} ${enemy.name} Lv.${level} 出現於 ${zoneLabel()}。`,boss?'boss':'system');}
+function victory(){if(!enemy)return;const e=enemy;const gold=Math.floor((e.boss?110:14)*Math.pow(1.15,state.stage-1));const xp=Math.floor((e.boss?95:22)*Math.pow(1.13,state.stage-1));state.gold+=gold;sessionGold+=gold;gainXp(xp);state.kills++;sessionKills++;if(e.boss)state.bossKills++;log(`[隊伍分配] 擊敗 ${e.name}，獲得 Base EXP ${fmt(xp)} / Job EXP ${fmt(Math.floor(xp*.55))}。`,'exp');log(`獲得 Zen ${fmt(gold)}。`,'exp');if(Math.random()<(e.boss?.9:.27)){const item=generateItem(e.boss);if(state.inventory.length<60){state.inventory.push(item);recentItem=item.name;log(`◆ 掉落物品：${item.name}（${qualityLabel(item)}）！`,'loot');}else log('背包已滿，裝備未拾取。','warning');}state.stage++;state.maxStage=Math.max(state.maxStage,state.stage);enemy=null;respawnClock=1.4;monsterRoot?.setEnabled(false);save(false);refreshView();}
+function hitEnemy(amount,label,kind='battle'){if(!enemy||enemy.hp<=0)return;const dealt=Math.max(1,Math.floor(amount-enemy.def));enemy.hp=Math.max(0,enemy.hp-dealt);log(`${label} 對 ${enemy.name} 造成 ${fmt(dealt)} 點傷害。`,kind);if(enemy.hp<=0)victory();}
+function enemyHit(){if(!enemy)return;const amount=Math.max(1,enemy.atk-defense());state.hp=Math.max(0,state.hp-amount);if(Math.random()<.14)log(`${enemy.name} 攻擊你，受到 ${fmt(amount)} 點傷害。`,'battle');if(state.hp===0){const penalty=Math.min(state.gold,Math.floor(state.gold*.04));state.gold-=penalty;state.hp=maxHp();state.mp=maxMp();log(`角色戰敗，已自動復活，損失 ${fmt(penalty)} Zen。`,'warning');}}
+function castSkill(auto=false){if(!enemy||!state.auto)return false;if(Date.now()<state.skillReadyAt||state.mp<18){if(!auto)toast(state.mp<18?'MP 不足（需要 18）':'技能冷卻中');return false;}state.mp-=18;state.skillReadyAt=Date.now()+8000;hitEnemy(skillDamage(),'⚡ 旋風斬','skill');updateHUD();return true;}
+function buyUpgrade(type){const cost=upgradeCost(type);if(state.gold<cost){toast('Zen 不足');return;}const old=maxHp();state.gold-=cost;state.upgrades[type]++;if(type==='hp')state.hp+=maxHp()-old;log(`${{atk:'攻擊',hp:'生命',def:'防禦'}[type]}強化成功！`,'system');commitUI();}
+function buySkill(){const cost=skillCost();if(state.gold<cost){toast('Zen 不足');return;}state.gold-=cost;state.skillLevel++;log(`旋風斬提升至 Lv.${state.skillLevel}。`,'skill');commitUI();}
+function addAttribute(type){if(state.statPoints<=0)return;const oldH=maxHp(),oldM=maxMp();state.attributes[type]++;state.statPoints--;state.hp+=maxHp()-oldH;state.mp+=maxMp()-oldM;log(`${{str:'力量',agi:'敏捷',vit:'體力',int:'智力'}[type]} +1`,'system');commitUI();}
+function equipItem(id){const i=state.inventory.findIndex(x=>x.id===id);if(i<0)return;const item=state.inventory.splice(i,1)[0],oldMax=maxHp(),previous=state.equipment[item.type];state.equipment[item.type]=item;if(previous)state.inventory.push(previous);state.hp=clamp(state.hp+maxHp()-oldMax,1,maxHp());log(`已裝備 ${item.name}。`,'loot');commitUI();}
+function unequip(type){const item=state.equipment[type];if(!item||state.inventory.length>=60)return;state.equipment[type]=null;state.inventory.push(item);state.hp=clamp(state.hp,1,maxHp());log(`卸下 ${item.name}。`,'loot');commitUI();}
+function itemPrice(item){return Math.max(10,Math.floor(((item.atk||0)*5+(item.def||0)*6+(item.hp||0))*.8));}
+function sellItem(id){const i=state.inventory.findIndex(x=>x.id===id);if(i<0)return;const item=state.inventory.splice(i,1)[0],price=itemPrice(item);state.gold+=price;log(`出售 ${item.name}，獲得 ${fmt(price)} Zen。`,'loot');commitUI();}
+function moveWarehouse(id,toWarehouse){const from=toWarehouse?state.inventory:state.warehouse,to=toWarehouse?state.warehouse:state.inventory;const limit=toWarehouse?100:60;if(to.length>=limit){toast('目標欄位已滿');return;}const i=from.findIndex(x=>x.id===id);if(i<0)return;const item=from.splice(i,1)[0];to.push(item);log(`${item.name} 已${toWarehouse?'存入倉庫':'領回背包'}。`,'loot');commitUI();}
+function buyShop(type){const cost=Math.floor((75+state.stage*20)*(type==='weapon'?1.25:1));if(state.gold<cost){toast('Zen 不足');return;}if(state.inventory.length>=60){toast('背包已滿');return;}state.gold-=cost;const item=generateItem(false,type);state.inventory.push(item);log(`購買 ${item.name}，花費 ${fmt(cost)} Zen。`,'loot');commitUI();}
+function moveToStage(stage){if(stage>state.maxStage)return toast('尚未解鎖此地圖');state.stage=stage;enemy=null;respawnClock=.2;monsterRoot?.setEnabled(false);log(`已移動至 ${zoneLabel()}。`,'system');commitUI();closeView();}
+function save(notify=true){try{state.lastSaved=Date.now();localStorage.setItem(SAVE_KEY,JSON.stringify(state));$text('footerSaved','✓ 已儲存');if(notify){log('💾 遊戲已儲存到此瀏覽器。','system');toast('已儲存');}}catch(e){log('存檔失敗，請檢查瀏覽器是否允許本機儲存。','warning');}}
+function load(){try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return;const old=JSON.parse(raw);if(old.version!==1)return;const fresh=initial();state={...fresh,...old,upgrades:{...fresh.upgrades,...old.upgrades},attributes:{...fresh.attributes,...old.attributes},equipment:{...fresh.equipment,...old.equipment}};state.inventory=Array.isArray(state.inventory)?state.inventory.slice(0,60):[];state.warehouse=Array.isArray(state.warehouse)?state.warehouse.slice(0,100):[];state.level=clamp(Math.floor(Number(state.level)||1),1,10000);state.jobLevel=clamp(Math.floor(Number(state.jobLevel)||1),1,10000);state.stage=clamp(Math.floor(Number(state.stage)||1),1,10000);state.maxStage=Math.max(state.stage,Math.floor(Number(state.maxStage)||1));state.gold=Math.max(0,Number(state.gold)||0);state.statPoints=Math.max(0,Number(state.statPoints)||0);state.hp=clamp(Number(state.hp)||1,1,maxHp());state.mp=clamp(Number(state.mp)||maxMp(),0,maxMp());const away=clamp(Math.floor((Date.now()-(Number(old.lastSaved)||Date.now()))/1000),0,28800);if(away>=60){const earned=Math.floor(away/60)*(8+state.level*3);state.gold+=earned;log(`🌙 離線 ${Math.floor(away/60)} 分鐘，獲得 ${fmt(earned)} Zen（上限 8 小時）。`,'exp');toast(`離線收益 +${fmt(earned)} Zen`);}}catch(e){state=initial();log('存檔讀取失敗，已建立新的進度。','warning');}}
+function progress(id,val){const node=$(id);if(node)node.style.width=clamp(val,0,100).toFixed(2)+'%';}
+function rate(n){return fmt(n*3600000/Math.max(1000,Date.now()-sessionStart));}
+function updateHUD(){state.hp=clamp(state.hp,0,maxHp());state.mp=clamp(state.mp,0,maxMp());$text('charName',`暗黑戰士`);$text('baseLevel',fmt(state.level));$text('jobLevel',fmt(state.jobLevel));$text('expPct',`${(100*state.xp/xpNeeded()).toFixed(2)}%`);$text('jobPct',`${(100*state.jobXp/jobNeeded()).toFixed(2)}%`);progress('expFill',100*state.xp/xpNeeded());progress('jobFill',100*state.jobXp/jobNeeded());progress('hpFill',100*state.hp/maxHp());progress('mpFill',100*state.mp/maxMp());$text('hpText',`${fmt(state.hp)}/${fmt(maxHp())}`);$text('mpText',`${fmt(state.mp)}/${fmt(maxMp())}`);$text('burden',`${state.inventory.length}/60`);$text('goldText',fmt(state.gold));$text('pointsText',`尚有 ${fmt(state.statPoints)} 點能力點數可分配`);$text('zoneName',zoneLabel());$text('stageName',`第 ${state.stage} 關 · ${state.stage%5===0?'Boss 關':'普通關'}`);$text('actionText',state.auto?'自動戰鬥':'暫停掛機');$text('enemyName',enemy?enemy.name:'等待怪物重生');$text('recentItem',recentItem);$text('targetName',enemy?`${enemy.boss?'👑 ':''}${enemy.name} Lv.${enemy.level}`:'怪物重生中');$text('targetHpText',enemy?`${fmt(enemy.hp)}/${fmt(enemy.maxHp)}`:'—');progress('enemyFill',enemy?100*enemy.hp/enemy.maxHp:0);$text('footerZone',zoneLabel());$text('footerFight',state.auto?'⚔ 自動掛機':'Ⅱ 已暫停');$text('topSummary',`✦ MU 放置奇蹟 - 暗黑戰士 Lv.${state.level} / ${zoneLabel()} / ${state.auto?'自動戰鬥中':'暫停'}`);$('toggleCombat').textContent=state.auto?'■ 停止掛機':'▶ 開始掛機';$('toggleCombat').classList.toggle('running',state.auto);$('quickSkill').textContent=Math.max(0,Math.ceil((state.skillReadyAt-Date.now())/1000))?`⚡ 冷卻 ${Math.ceil((state.skillReadyAt-Date.now())/1000)} 秒`:'⚡ 旋風斬';$('quickSkill').disabled=!state.auto||!enemy||state.mp<18||Date.now()<state.skillReadyAt;const s=$('statSidebar');s.replaceChildren();const rows=[['掛機時間',new Date(Date.now()-sessionStart).toISOString().slice(11,19)],['擊殺數',fmt(sessionKills)],['Base EXP / 時',rate(sessionXp)],['Zen / 時',rate(sessionGold)],['死亡次數','自動復活'],['Boss 討伐',fmt(state.bossKills)]];for(const [a,b] of rows){const r=el('div','info-row');r.append(el('span','',a),el('strong','',b));s.append(r);}s.append(el('div','', '戰利品情報'));const rewards=el('div','rewards');for(const t of logLines.filter(x=>x.kind==='loot').slice(-4).reverse())rewards.append(el('div','',`◆ ${t.message}`));if(!rewards.childElementCount)rewards.append(el('div','','◆ 尚未取得物品'));s.append(rewards);}
+const views={main:'主控台',character:'角色資訊',skills:'技能',equipment:'裝備',inventory:'背包',warehouse:'倉庫',shop:'商店',upgrade:'角色強化',map:'世界地圖',settings:'掛機設定',stats:'冒險統計',help:'遊戲說明'};
+function closeView(){activeView='main';$('drawer').classList.add('hidden');document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view==='main'));}
+function openView(view){if(view==='main')return closeView();activeView=view;$('drawer').classList.remove('hidden');$text('drawerTitle',`◈ ${views[view]||view}`);document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));refreshView();}
+function rowKey(container,name,value){const d=el('div','keyval');d.append(el('span','',name),el('span','',String(value)));container.append(d);return d;}
+function card(parent,title,desc,buttons=[]){const wrap=el('div','ui-card');wrap.append(el('b','',title),el('div','desc',desc));for(const [text,fn,disabled] of buttons){const b=el('button','',text);b.disabled=!!disabled;b.addEventListener('click',fn);wrap.append(b);}parent.append(wrap);return wrap;}
+function grid(root){const g=el('div','modal-grid');root.append(g);return g;}
+function itemCard(parent,item,buttons){card(parent,`${qualityLabel(item)==='稀有'?'◆ ':''}${item.name}`,`${types[item.type]||item.type}・${qualityLabel(item)}　${itemText(item)}`,buttons);}
+function toggleAuto(){state.auto=!state.auto;log(state.auto?'已啟用自動掛機。':'已停止自動掛機。','system');commitUI();}
+function commitUI(){save(false);updateHUD();refreshView();}
+function refreshView(){if(activeView==='main')return;const root=$('drawerContent');root.replaceChildren();const g=grid(root);
+  if(activeView==='character'){
+    const info=el('div');rowKey(info,'冒險等級',`Base Lv.${state.level}`);rowKey(info,'職業等級',`Job Lv.${state.jobLevel}`);rowKey(info,'Zen',fmt(state.gold));rowKey(info,'攻擊力',fmt(attack()));rowKey(info,'防禦力',fmt(defense()));rowKey(info,'最大生命',fmt(maxHp()));rowKey(info,'最大魔力',fmt(maxMp()));rowKey(info,'剩餘能力點',fmt(state.statPoints));root.prepend(info);
+    for(const [key,label,infoText] of [['str','力量 STR','增加攻擊 +3'],['agi','敏捷 AGI','基礎能力（後續可擴充攻速）'],['vit','體力 VIT','增加 HP +14、防禦 +1'],['int','智力 INT','增加 MP +8']])card(g,`${label}：${state.attributes[key]}`,infoText,[[`分配 1 點`,()=>addAttribute(key),state.statPoints<1]]);
+  }else if(activeView==='skills'){
+    card(g,`⚡ 旋風斬 Lv.${state.skillLevel}`,`傷害 ${fmt(skillDamage())}・MP 消耗 18・冷卻 8 秒`,[['施放技能',()=>castSkill(),!enemy||!state.auto||state.mp<18||Date.now()<state.skillReadyAt],[`升級 ${fmt(skillCost())} Zen`,buySkill,state.gold<skillCost()]]);
+    card(g,'🛡 自動施法',state.autoSkill?'怪物出現時自動施放旋風斬（MP 足夠時）':'目前由你手動點擊施放',[['切換自動施法',()=>{state.autoSkill=!state.autoSkill;commitUI();}]]);
+  }else if(activeView==='equipment'){
+    for(const type of Object.keys(types)){const item=state.equipment[type];if(item)itemCard(g,item,[['卸下',()=>unequip(type),state.inventory.length>=60]]);else card(g,`${types[type]}：未裝備`,'打怪取得裝備後，前往背包點擊「穿戴」。');}
+  }else if(activeView==='inventory'){
+    root.prepend(el('p','',`背包容量 ${state.inventory.length} / 60；擊敗怪物有機會掉落裝備。`));if(!state.inventory.length)root.append(el('p','','背包目前是空的。'));for(const item of state.inventory)itemCard(g,item,[['穿戴',()=>equipItem(item.id)],['存倉',()=>moveWarehouse(item.id,true),state.warehouse.length>=100],[`出售 +${fmt(itemPrice(item))} Zen`,()=>sellItem(item.id)]]);
+  }else if(activeView==='warehouse'){
+    root.prepend(el('p','',`倉庫容量 ${state.warehouse.length} / 100。請從背包選擇物品存入倉庫。`));if(!state.warehouse.length)root.append(el('p','','倉庫目前沒有物品。'));for(const item of state.warehouse)itemCard(g,item,[['領回背包',()=>moveWarehouse(item.id,false),state.inventory.length>=60]]);
+  }else if(activeView==='shop'){
+    root.prepend(el('p','','商店販售符合目前關卡等級的基本裝備；購買時會自動生成數值。'));
+    for(const type of Object.keys(types)){const cost=Math.floor((75+state.stage*20)*(type==='weapon'?1.25:1));card(g,`購買${types[type]}`,`符合第 ${state.stage} 關的裝備，花費 ${fmt(cost)} Zen。`,[[`購買 ${fmt(cost)} Zen`,()=>buyShop(type),state.gold<cost||state.inventory.length>=60]]);}
+  }else if(activeView==='upgrade'){
+    for(const [type,title,desc] of [['atk','攻擊強化','每次增加攻擊力 +5'],['hp','生命強化','每次增加 HP +35'],['def','防禦強化','每次增加防禦力 +2']])card(g,`${title} +${state.upgrades[type]}`,desc,[[`強化 ${fmt(upgradeCost(type))} Zen`,()=>buyUpgrade(type),state.gold<upgradeCost(type)]]);
+  }else if(activeView==='map'){
+    root.prepend(el('p','',`目前：${zoneLabel()}。已解鎖至第 ${state.maxStage} 關；每 5 關出現 Boss。`));
+    for(const z of ZONES)card(g,z.name,`第 ${z.level} 關起｜主要怪物：${z.monster}｜Boss：${z.boss}`,[[z.level<=state.maxStage?'前往此地圖':'尚未解鎖',()=>moveToStage(z.level),z.level>state.maxStage]]);
+  }else if(activeView==='settings'){
+    card(g,'⚔ 自動掛機',state.auto?'目前已開啟':'目前已暫停',[[state.auto?'停止掛機':'開始掛機',toggleAuto]]);
+    card(g,'⚡ 自動施放技能',state.autoSkill?'已啟用；MP 足夠時會使用旋風斬':'已關閉；可按右側快捷鍵施法',[[state.autoSkill?'關閉自動施法':'開啟自動施法',()=>{state.autoSkill=!state.autoSkill;commitUI();}]]);
+    card(g,'💾 手動存檔','每 10 秒會自動儲存進度；切換分頁也會儲存。',[['立即存檔',()=>save(true)]]);
+    card(g,'⚠ 重置進度','刪除這個瀏覽器內的 MU Idle 角色存檔；無法復原。',[['重置遊戲',()=>{if(confirm('確定要刪除 MU Idle 的本機存檔？此動作無法復原。')){localStorage.removeItem(SAVE_KEY);location.reload();}}]]);
+  }else if(activeView==='stats'){
+    const data=[['Base Lv.',fmt(state.level)],['Job Lv.',fmt(state.jobLevel)],['到達關卡',fmt(state.maxStage)],['累計擊殺',fmt(state.kills)],['Boss 討伐',fmt(state.bossKills)],['本次掛機擊殺',fmt(sessionKills)],['本次 Base EXP',fmt(sessionXp)],['本次取得 Zen',fmt(sessionGold)],['每小時 Base EXP',rate(sessionXp)],['每小時 Zen',rate(sessionGold)],['背包',`${state.inventory.length}/60`],['倉庫',`${state.warehouse.length}/100`]];const a=el('div');for(const [k,v] of data)rowKey(a,k,v);root.prepend(a);
+  }else if(activeView==='help'){
+    const text=el('div');text.append(el('h3','','遊戲目標'),el('p','','角色會自動攻擊怪物、取得 Base / Job EXP 與 Zen。每 5 關會出現 Boss，討伐後進入下一關。'),el('h3','','裝備與成長'),el('p','','從背包穿戴裝備，利用金幣強化能力、升級旋風斬或在商店購買裝備。等級提高可獲得能力點數。'),el('h3','','指令'),el('p','','help（顯示說明）、status（狀態）、save（存檔）、start（開始）、stop（暫停）、skill（施法）、bag（背包）、clear（清除紀錄）。'),el('h3','','存檔與聊天'),el('p','','遊戲只儲存在目前的瀏覽器 localStorage；最多計算 8 小時的離線 Zen 收益。下方聊天是單機留言示範，並沒有多人連線伺服器。'));root.prepend(text);
+  }
+}
+function processCommand(){const input=$('command'),c=input.value.trim().toLowerCase();input.value='';if(!c)return;switch(c){case'help':openView('help');break;case'status':log(`Base Lv.${state.level} / Job Lv.${state.jobLevel}，HP ${fmt(state.hp)}/${fmt(maxHp())}，攻擊 ${fmt(attack())}，Zen ${fmt(state.gold)}。`,'system');break;case'save':save(true);break;case'start':if(!state.auto)toggleAuto();break;case'stop':if(state.auto)toggleAuto();break;case'skill':castSkill();break;case'bag':openView('inventory');break;case'clear':logLines.length=0;drawLog();break;default:log(`未知指令：${c}。輸入 help 查看可用指令。`,'warning');}}
+// Babylon.js 3D 角色：由原創幾何組件建立，不依賴任何其他遊戲的圖像、模型或素材。
+function init3D(){if(!window.BABYLON){log('無法載入 Babylon.js；文字掛機功能仍可使用。','warning');return;}try{
+  const canvas=$('portraitCanvas'),engine=new BABYLON.Engine(canvas,true,{preserveDrawingBuffer:false,stencil:false});scene=new BABYLON.Scene(engine);scene.clearColor=new BABYLON.Color4(.12,.19,.25,1);
+  const camera=new BABYLON.ArcRotateCamera('camera',-Math.PI/2,1.13,8,new BABYLON.Vector3(0,1.65,0),scene);camera.attachControl(canvas,true);camera.lowerRadiusLimit=5;camera.upperRadiusLimit=12;
+  const hemi=new BABYLON.HemisphericLight('hemi',new BABYLON.Vector3(0,1,0),scene);hemi.intensity=1.15;const sun=new BABYLON.DirectionalLight('sun',new BABYLON.Vector3(-1,-2,-2),scene);sun.intensity=.9;
+  function mat(name,hex,metal=0){const m=new BABYLON.PBRMaterial(name,scene);m.albedoColor=BABYLON.Color3.FromHexString(hex);m.metallic=metal;m.roughness=.42;return m;}
+  const steel=mat('steel','#7286ac',.75),dark=mat('dark','#24324d',.6),gold=mat('gold','#e0b668',.7),skin=mat('goblin','#5d9c48'),cloth=mat('cloth','#6a4329'),red=mat('eyes','#ff4b4b');red.emissiveColor=new BABYLON.Color3(.5,.05,.05);
+  const ground=BABYLON.MeshBuilder.CreateGround('ground',{width:14,height:14},scene);ground.material=mat('ground','#425a52');
+  function cube(parent,name,size,pos,m){const x=BABYLON.MeshBuilder.CreateBox(name,{width:size[0],height:size[1],depth:size[2]},scene);x.parent=parent;x.position.set(...pos);x.material=m;return x;}
+  function sphere(parent,name,size,pos,m){const x=BABYLON.MeshBuilder.CreateSphere(name,{diameter:size},scene);x.parent=parent;x.position.set(...pos);x.material=m;return x;}
+  heroRoot=new BABYLON.TransformNode('hero',scene);heroRoot.position.x=-.8;
+  cube(heroRoot,'torso',[1,1.25,.6],[0,2.1,0],dark);cube(heroRoot,'breastplate',[.85,.6,.68],[0,2.43,-.03],steel);cube(heroRoot,'emblem',[.2,.4,.72],[0,2.45,-.03],gold);cube(heroRoot,'helmet',[.78,.7,.74],[0,3.23,0],steel);cube(heroRoot,'visor',[.52,.1,.8],[0,3.16,-.03],gold);cube(heroRoot,'crest',[.14,.32,.5],[0,3.69,0],gold);
+  for(const d of [-1,1]){cube(heroRoot,'shoulder',[.6,.44,.8],[d*.8,2.7,0],steel);cube(heroRoot,'arm',[.3,1,.36],[d*.8,1.92,0],dark);cube(heroRoot,'leg',[.42,1.2,.48],[d*.3,.83,0],dark);cube(heroRoot,'boot',[.47,.34,.65],[d*.3,.18,-.1],steel);}
+  cube(heroRoot,'belt',[1.05,.2,.66],[0,1.48,0],gold);cube(heroRoot,'grip',[.13,.6,.13],[.83,1.1,-.1],gold);cube(heroRoot,'sword',[.18,1.55,.12],[.83,2.18,-.1],steel);cube(heroRoot,'guard',[.62,.13,.19],[.83,1.45,-.1],gold);
+  monsterRoot=new BABYLON.TransformNode('monster',scene);monsterRoot.position.x=1.45;
+  window.updateMonsterModel=()=>{for(const child of monsterRoot.getChildren().slice())child.dispose();const boss=!!enemy?.boss;monsterRoot.scaling.setAll(boss?1.15:.88);cube(monsterRoot,'monster torso',[.8,1,.45],[0,1.13,0],boss?dark:cloth);sphere(monsterRoot,'head',.8,[0,1.92,0],boss?red:skin);for(const d of [-1,1]){cube(monsterRoot,'eye',[.13,.13,.09],[d*.2,2,-.4],red);cube(monsterRoot,'ear',[.45,.14,.2],[d*.53,2.05,0],skin);cube(monsterRoot,'arm',[.24,.83,.32],[d*.52,1.15,0],skin);cube(monsterRoot,'leg',[.26,.7,.32],[d*.21,.38,0],skin);}if(boss)cube(monsterRoot,'crown',[.85,.22,.7],[0,2.37,0],gold);monsterRoot.setEnabled(!!enemy);};
+  for(let i=0;i<14;i++){const rock=BABYLON.MeshBuilder.CreateBox('rock'+i,{size:.15+Math.random()*.38},scene);rock.position.set(Math.random()*9-4.5,.1,Math.random()*9-4.5);rock.material=dark;}
+  engine.runRenderLoop(()=>{const t=performance.now()*.002;heroRoot.position.y=Math.sin(t)*.045;if(monsterRoot?.isEnabled())monsterRoot.rotation.y=Math.sin(t*.75)*.09;scene.render();});window.addEventListener('resize',()=>engine.resize());
+}catch(err){console.error(err);log('3D 角色載入失敗，但文字掛機仍可正常遊玩。','warning');}}
+function buildMonster(){if(typeof window.updateMonsterModel==='function')window.updateMonsterModel();}
+// 介面事件
+for(const b of document.querySelectorAll('[data-view]'))b.addEventListener('click',()=>openView(b.dataset.view));for(const b of document.querySelectorAll('[data-open]'))b.addEventListener('click',()=>openView(b.dataset.open));$('drawerClose').addEventListener('click',closeView);$('toggleCombat').addEventListener('click',toggleAuto);$('quickSkill').addEventListener('click',()=>castSkill());$('quickSave').addEventListener('click',()=>save(true));$('openMap').addEventListener('click',()=>openView('map'));$('backZone').addEventListener('click',()=>moveToStage(1));$('clearLog').addEventListener('click',()=>{logLines.length=0;drawLog();});$('commandGo').addEventListener('click',processCommand);$('command').addEventListener('keydown',e=>{if(e.key==='Enter')processCommand();});
+for(const b of document.querySelectorAll('[data-filter]'))b.addEventListener('click',()=>{logFilter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(n=>n.classList.toggle('active',n===b));drawLog();});for(const b of document.querySelectorAll('[data-chat-filter]'))b.addEventListener('click',()=>{chatFilter=b.dataset.chatFilter;document.querySelectorAll('[data-chat-filter]').forEach(n=>n.classList.toggle('active',n===b));drawChat();});$('chatForm').addEventListener('submit',e=>{e.preventDefault();const input=$('chatInput'),msg=input.value.trim();if(!msg)return;chat(msg,'general','暗黑戰士');input.value='';});
+// 初始化
+load();chat('歡迎來到 MU 放置奇蹟！這是一個原創、可在本機遊玩的文字放置 RPG。');chat('使用上方功能列查看背包、技能、地圖與強化。');log('歡迎來到 MU 放置奇蹟！自動戰鬥已準備就緒。','system');log('提示：每 5 關出現 Boss；戰勝魔物會取得經驗、Zen 與裝備。','system');init3D();newEnemy();updateHUD();save(false);
+let last=performance.now(),uiClock=0,saveClock=0;
+setInterval(()=>{const now=performance.now(),dt=Math.min((now-last)/1000,.25);last=now;if(state.auto){mpClock+=dt;if(mpClock>=1){mpClock-=1;state.mp=Math.min(maxMp(),state.mp+Math.max(1,Math.ceil(maxMp()*.035)));state.hp=Math.min(maxHp(),state.hp+Math.max(1,Math.ceil(maxHp()*.007)));}if(!enemy){respawnClock-=dt;if(respawnClock<=0)newEnemy();}else{attackClock+=dt;enemyClock+=dt;if(state.autoSkill)castSkill(true);if(attackClock>=1.2){attackClock=0;hitEnemy(attack(),'⚔ 普通攻擊','battle');}if(enemy&&enemyClock>=2){enemyClock=0;enemyHit();}}}uiClock+=dt;saveClock+=dt;if(uiClock>=.45){uiClock=0;updateHUD();}if(saveClock>=10){saveClock=0;save(false);}},100);
+window.addEventListener('pagehide',()=>save(false));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')save(false);});
 </script>
 </body>
 </html>
