@@ -2,106 +2,187 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1">
-  <title>MU Idle - 3D RPG</title>
-  <script src="https://cdn.babylonjs.com/babylon.js"></script>
-  <style>
-    html, body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #101522;
-      font-family: Arial, sans-serif;
-    }
-    #game {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    #title {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      color: #f5cf7b;
-      font-size: 24px;
-      font-weight: bold;
-      pointer-events: none;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1">
+<title>MU Idle - 3D RPG</title>
+<script src="https://cdn.babylonjs.com/babylon.js"></script>
+<style>
+  html,body {
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#090e19;
+    font-family:Arial,sans-serif;
+  }
+  #game {
+    width:100%;
+    height:100%;
+    display:block;
+    touch-action:none;
+  }
+  #hud {
+    position:absolute;
+    top:16px;
+    left:16px;
+    color:white;
+    background:rgba(8,12,24,.8);
+    padding:16px;
+    border:1px solid #987640;
+    border-radius:8px;
+    pointer-events:none;
+  }
+  h2 {
+    color:#ffd477;
+    margin:0 0 10px;
+  }
+  p { margin:6px 0; }
+</style>
 </head>
 <body>
-  <div id="title">MU IDLE RPG</div>
-  <canvas id="game"></canvas>
+<div id="hud">
+  <h2>MU IDLE RPG</h2>
+  <p>職業：暗黑戰士</p>
+  <p>等級：1</p>
+  <p>HP：100 / 100</p>
+  <p>金幣：0 Zen</p>
+</div>
+<canvas id="game"></canvas>
+<script>
+const canvas=document.getElementById("game");
+const engine=new BABYLON.Engine(canvas,true);
 
-  <script>
-    const canvas = document.getElementById("game");
-    const engine = new BABYLON.Engine(canvas, true);
+function createScene(){
+  const scene=new BABYLON.Scene(engine);
+  scene.clearColor=
+    new BABYLON.Color4(.025,.035,.065,1);
 
-    const createScene = () => {
-      const scene = new BABYLON.Scene(engine);
-      scene.clearColor = new BABYLON.Color4(
-        0.05, 0.07, 0.12, 1
-      );
+  const camera=new BABYLON.ArcRotateCamera(
+    "camera",-Math.PI/2,1.05,13,
+    new BABYLON.Vector3(0,1,0),scene
+  );
+  camera.attachControl(canvas,true);
+  camera.lowerRadiusLimit=6;
+  camera.upperRadiusLimit=25;
 
-      const camera = new BABYLON.ArcRotateCamera(
-        "camera",
-        -Math.PI / 2,
-        Math.PI / 3,
-        15,
-        new BABYLON.Vector3(0, 0, 0),
-        scene
-      );
-      camera.attachControl(canvas, true);
+  const light=new BABYLON.HemisphericLight(
+    "light",new BABYLON.Vector3(0,1,0),scene
+  );
+  light.intensity=.85;
 
-      const light = new BABYLON.HemisphericLight(
-        "light",
-        new BABYLON.Vector3(0, 1, 0),
-        scene
-      );
-      light.intensity = 1.2;
+  const sun=new BABYLON.DirectionalLight(
+    "sun",new BABYLON.Vector3(-1,-2,-1),scene
+  );
+  sun.intensity=1.4;
 
-      const ground = BABYLON.MeshBuilder.CreateGround(
-        "ground",
-        { width: 20, height: 20 },
-        scene
-      );
+  function material(name,color,metallic=0){
+    const m=new BABYLON.PBRMaterial(name,scene);
+    m.albedoColor=BABYLON.Color3.FromHexString(color);
+    m.metallic=metallic;
+    m.roughness=.38;
+    return m;
+  }
 
-      const groundMat = new BABYLON.StandardMaterial(
-        "groundMat", scene
-      );
-      groundMat.diffuseColor =
-        new BABYLON.Color3(0.15, 0.3, 0.2);
-      ground.material = groundMat;
+  const armor=material("dark steel","#303c56",.75);
+  const silver=material("silver","#8898b3",.85);
+  const gold=material("gold","#c49b4e",.7);
+  const black=material("black","#151b2a",.25);
+  const blue=material("magic","#277bff",.2);
+  blue.emissiveColor=new BABYLON.Color3(.05,.2,.7);
 
-      const hero = BABYLON.MeshBuilder.CreateCapsule(
-        "hero",
-        { height: 2, radius: 0.5 },
-        scene
-      );
-      hero.position.y = 1;
+  const ground=BABYLON.MeshBuilder.CreateGround(
+    "ground",{width:30,height:30},scene
+  );
+  ground.material=material("stone","#303b35");
 
-      const heroMat = new BABYLON.StandardMaterial(
-        "heroMat", scene
-      );
-      heroMat.diffuseColor =
-        new BABYLON.Color3(0.2, 0.5, 1);
-      hero.material = heroMat;
+  const hero=new BABYLON.TransformNode("hero",scene);
 
-      return scene;
-    };
+  function box(name,w,h,d,x,y,z,mat,parent=hero){
+    const mesh=BABYLON.MeshBuilder.CreateBox(
+      name,{width:w,height:h,depth:d},scene
+    );
+    mesh.position.set(x,y,z);
+    mesh.material=mat;
+    mesh.parent=parent;
+    return mesh;
+  }
 
-    const scene = createScene();
+  function sphere(name,diameter,x,y,z,mat){
+    const mesh=BABYLON.MeshBuilder.CreateSphere(
+      name,{diameter},scene
+    );
+    mesh.position.set(x,y,z);
+    mesh.material=mat;
+    mesh.parent=hero;
+    return mesh;
+  }
 
-    engine.runRenderLoop(() => {
-      scene.render();
-    });
+  // 身體與胸甲
+  box("torso",1.05,1.3,.55,0,2.15,0,armor);
+  box("chest plate",.85,.6,.65,0,2.45,-.04,silver);
+  box("chest emblem",.2,.4,.7,0,2.48,-.06,gold);
+  box("belt",1.05,.2,.65,0,1.5,0,gold);
 
-    window.addEventListener("resize", () => {
-      engine.resize();
-    });
-  </script>
+  // 頭盔
+  sphere("head",.65,0,3.15,0,black);
+  box("helmet",.8,.65,.75,0,3.32,0,armor);
+  box("visor",.6,.12,.8,0,3.18,-.03,blue);
+  box("helmet crest",.14,.4,.5,0,3.75,0,gold);
+
+  // 肩甲
+  box("left shoulder",.65,.48,.85,-.82,2.75,0,silver);
+  box("right shoulder",.65,.48,.85,.82,2.75,0,silver);
+
+  // 雙臂
+  box("left arm",.36,1.1,.4,-.8,1.95,0,armor);
+  box("right arm",.36,1.1,.4,.8,1.95,0,armor);
+  box("left glove",.42,.35,.46,-.8,1.32,0,gold);
+  box("right glove",.42,.35,.46,.8,1.32,0,gold);
+
+  // 雙腿
+  box("left leg",.42,1.2,.48,-.3,.85,0,armor);
+  box("right leg",.42,1.2,.48,.3,.85,0,armor);
+  box("left boot",.48,.35,.7,-.3,.2,-.1,black);
+  box("right boot",.48,.35,.7,.3,.2,-.1,black);
+
+  // 右手長劍
+  const sword=new BABYLON.TransformNode("sword",scene);
+  sword.parent=hero;
+  sword.position.set(.85,1.25,-.15);
+  box("handle",.12,.65,.12,0,-.15,0,black,sword);
+  box("guard",.65,.13,.2,0,.2,0,gold,sword);
+  box("blade",.2,1.65,.12,0,1.05,0,silver,sword);
+
+  // 地面石塊
+  for(let i=0;i<25;i++){
+    const rock=BABYLON.MeshBuilder.CreateBox(
+      "rock"+i,{
+        width:.4+Math.random()*.8,
+        height:.2+Math.random()*.4,
+        depth:.4+Math.random()*.8
+      },scene
+    );
+    rock.position.set(
+      Math.random()*22-11,
+      .1,
+      Math.random()*22-11
+    );
+    rock.material=armor;
+  }
+
+  // 角色待機動畫
+  scene.onBeforeRenderObservable.add(()=>{
+    hero.position.y=
+      Math.sin(performance.now()*.002)*.045;
+  });
+
+  return scene;
+}
+
+const scene=createScene();
+engine.runRenderLoop(()=>scene.render());
+window.addEventListener("resize",()=>engine.resize());
+</script>
 </body>
 </html>
